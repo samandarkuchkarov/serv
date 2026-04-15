@@ -17,11 +17,11 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Handle 401 globally
+// Log out on invalid or expired token
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 403) {
+    if (error.response?.status === 401 || error.response?.status === 403) {
       localStorage.removeItem('token');
       window.location.href = '/login';
     }

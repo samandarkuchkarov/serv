@@ -11,14 +11,13 @@ import axios from 'axios';
 export class RecaptchaGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const token: string | undefined = request.body?.recaptcha;
+    const secret = process.env.RECAPTCHA_SECRET;
+    if (!secret) return true; // skip entirely if not configured
 
+    const token: string | undefined = request.body?.recaptcha;
     if (!token) {
       throw new HttpException('Captcha failed', HttpStatus.UNPROCESSABLE_ENTITY);
     }
-
-    const secret = process.env.RECAPTCHA_SECRET;
-    if (!secret) return true; // skip in dev if not configured
 
     try {
       const { data } = await axios.post(

@@ -31,7 +31,9 @@ export class ApplicationService {
 
       const { data } = await axios.get(bitrixUrl, { params });
       return { status: 'ok', message: data };
-    } catch {
+    } catch (err: any) {
+      const detail = err?.response?.data ?? err?.message ?? err;
+      console.error('Bitrix error:', detail);
       throw new InternalServerErrorException('Failed to submit application');
     }
   }

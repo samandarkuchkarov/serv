@@ -1,4 +1,5 @@
-import { IsString, IsOptional } from 'class-validator';
+import { IsString, IsOptional, ValidateNested, IsObject } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class BitrixFieldsDto {
   @IsOptional() @IsString() title?: string;
@@ -17,6 +18,9 @@ export class BitrixFieldsDto {
 }
 
 export class SubmitApplicationDto {
+  @IsObject()
+  @ValidateNested()
+  @Type(() => BitrixFieldsDto)
   bitrix!: BitrixFieldsDto;
 
   @IsOptional() @IsString()

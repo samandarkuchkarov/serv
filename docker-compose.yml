@@ -1,0 +1,63 @@
+services:
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: serv-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-comnet}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME:-serv_db}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/initdb:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-comnet} -d ${DB_NAME:-serv_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./serv-api
+      dockerfile: Dockerfile
+    container_name: serv-api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${DB_USER:-comnet}:${DB_PASSWORD}@postgres:5432/${DB_NAME:-serv_db}?schema=public
+      JWT_SECRET: ${JWT_SECRET}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      FRONTEND_URL: ${FRONTEND_URL}
+      RECAPTCHA_SECRET: ${RECAPTCHA_SECRET:-}
+      BITRIX_WEBHOOK_URL: ${BITRIX_WEBHOOK_URL}
+      PORT: 3000
+      NODE_ENV: production
+    volumes:
+      - ./serv-api/uploads:/app/uploads
+      - api_logs:/app/logs
+      - api_backups:/app/backups
+    ports:
+      - "3000:3000"
+    command: >
+      sh -c "npx prisma migrate deploy && node dist/src/main.js"
+
+  admin:
+    build:
+      context: ./serv-admin
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:3000}
+    container_name: serv-admin
+    restart: unless-stopped
+    ports:
+      - "80:80"
+
+volumes:
+  postgres_data:
+  api_logs:
+  api_backups:

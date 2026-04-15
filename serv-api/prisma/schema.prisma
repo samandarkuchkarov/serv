@@ -1,0 +1,226 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Admin {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+}
+
+model Banner {
+  id          String   @id @default(uuid())
+  title_uz    String
+  title_ru    String
+  subtitle_uz String
+  subtitle_ru String
+  btn_uz      String
+  btn_ru      String
+  btn_link    String
+  image       String
+  position    Int      @default(0)
+  isVisible   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Advantage {
+  id          String   @id @default(uuid())
+  title_uz    String
+  title_ru    String
+  subtitle_uz String
+  subtitle_ru String
+  image       String
+  position    Int      @default(0)
+  isVisible   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Service {
+  id           String   @id @default(uuid())
+  title_uz     String
+  title_ru     String
+  descr_uz     String
+  descr_ru     String
+  btn_name_uz  String
+  btn_name_ru  String
+  btn_link     String
+  freebtn_uz   String
+  freebtn_ru   String
+  more_link    String
+  morename_uz  String
+  morename_ru  String
+  image        String
+  order        Int      @default(0)
+  is_visible   Boolean  @default(true)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+}
+
+enum PageType {
+  internet
+  fiz
+  teh
+  yur
+  data
+  iptv
+  equipments
+  other
+  both
+}
+
+model Section {
+  id         String            @id @default(uuid())
+  name       String
+  items      ConstructorItem[]
+  created_at DateTime          @default(now())
+  updated_at DateTime          @updatedAt
+}
+
+model Equipment {
+  id              String      @id @default(uuid())
+  title_uz        String
+  title_ru        String
+  more_btn_uz     String
+  more_btn_ru     String
+  info_uz         String
+  info_ru         String
+  img             String
+  description_uz  String?
+  description_ru  String?
+  seo_uz          String?
+  seo_ru          String?
+  is_visible      Boolean     @default(true)
+  main_chars      MainChar[]
+  created_at      DateTime    @default(now())
+  updated_at      DateTime    @updatedAt
+}
+
+model MainChar {
+  id            String    @id @default(uuid())
+  name_uz       String
+  name_ru       String
+  equipment_id  String
+  equipment     Equipment @relation(fields: [equipment_id], references: [id], onDelete: Cascade)
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+}
+
+model Vacancy {
+  id               String               @id @default(uuid())
+  title_uz         String
+  title_ru         String
+  city             String
+  contact_phone    String
+  contact_name_ru  String?
+  contact_name_uz  String?
+  subtitle_ru      String?
+  subtitle_uz      String?
+  garant_ru        String?
+  garant_uz        String?
+  res_ru           String?
+  res_uz           String?
+  is_visible       Boolean              @default(true)
+  conditions       VacancyCondition[]
+  requirements     VacancyRequirement[]
+  created_at       DateTime             @default(now())
+  updated_at       DateTime             @updatedAt
+}
+
+model VacancyCondition {
+  id                String   @id @default(uuid())
+  condition_name_ru String
+  condition_name_uz String?
+  vacancy_id        String
+  vacancy           Vacancy  @relation(fields: [vacancy_id], references: [id], onDelete: Cascade)
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+}
+
+model VacancyRequirement {
+  id         String   @id @default(uuid())
+  name_ru    String
+  name_uz    String?
+  vacancy_id String
+  vacancy    Vacancy  @relation(fields: [vacancy_id], references: [id], onDelete: Cascade)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+enum PartnerType {
+  joy
+  beauty
+  other
+  education
+  style
+  food
+}
+
+model Partner {
+  id                   String             @id @default(uuid())
+  title_uz             String
+  title_ru             String
+  contact_location_ru  String?
+  contact_location_uz  String?
+  contact_phone        String?
+  contact_site         String?
+  facebook             String?
+  instagram            String?
+  grafik               String?
+  order                Int       @default(0)
+  images               String[]
+  info_ru              String?
+  info_uz              String?
+  cordinates           String?
+  logo                 String?
+  partner_card         String?
+  promo_count          Int?
+  promo_info_ru        String?
+  promo_info_uz        String?
+  telegram             String?
+  type                 PartnerType
+  is_visible           Boolean            @default(true)
+  conditions           PartnerCondition[]
+  created_at           DateTime           @default(now())
+  updated_at           DateTime           @updatedAt
+}
+
+model PartnerCondition {
+  id         String   @id @default(uuid())
+  name_uz    String?
+  name_ru    String
+  partner_id String
+  partner    Partner  @relation(fields: [partner_id], references: [id], onDelete: Cascade)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model ConstructorItem {
+  id                  String    @id @default(uuid())
+  access_only_by_url  Boolean   @default(false)
+  title_uz            String
+  title_ru            String
+  description_ru      String?
+  description_uz      String?
+  short_text_ru       String?
+  short_text_uz       String?
+  seo_ru              String?
+  seo_uz              String?
+  image               String?
+  image_uz            String?
+  is_visible          Boolean   @default(true)
+  is_archived         Boolean   @default(false)
+  page                PageType?
+  tag                 String?
+  cities              String[]
+  section_id          String
+  section             Section   @relation(fields: [section_id], references: [id], onDelete: Cascade)
+  created_at          DateTime  @default(now())
+  updated_at          DateTime  @updatedAt
+}
